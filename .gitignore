@@ -1,0 +1,31 @@
+# OS files
+.DS_Store
+
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Jupyter temporary files
+.ipynb_checkpoints/
+
+# Downloaded pretrained GPT-2 weights
+gpt2/
+
+# Generated model checkpoints
+*.pt
+*.pth
+*.ckpt
+
+# Generated evaluation artifacts
+*-plot.pdf
+
+# Downloaded archive and generated SMS spam splits
+sms_spam_collection.zip
+train.csv
+validation.csv
+test.csv
+
+gpt_download.py
