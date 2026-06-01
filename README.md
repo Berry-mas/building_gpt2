@@ -25,8 +25,15 @@
 python -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-pip install transformers tokenizers jupyterlab
+pip install -r requirements.txt
+pip install torch
+```
+
+VESSL CUDA 12.4 환경에서는 호환되는 PyTorch 빌드를 설치합니다:
+
+```bash
+pip install --upgrade pip
+pip install -r requirements-vessl.txt
 ```
 
 빠른 시작

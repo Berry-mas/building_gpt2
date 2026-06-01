@@ -1,0 +1,10 @@
+jupyterlab
+matplotlib
+ml-dtypes>=0.5.1
+numpy>=1.26,<2.3
+pandas
+psutil
+streamlit
+tensorflow>=2.20,<2.22
+tiktoken
+tqdm

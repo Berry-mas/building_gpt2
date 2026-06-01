@@ -27,6 +27,19 @@ streamlit run local_chat/app.py
 브라우저에서 `http://localhost:8501`을 엽니다. VESSL 워크스페이스에서는
 포트 `8501`을 노출한 뒤 해당 URL로 접속합니다.
 
+VESSL CUDA 12.4 워크스페이스를 새로 만들었다면 저장소 루트에서 다음과
+같이 설치하고 실행합니다.
+
+```bash
+pip install --upgrade pip
+pip install -r requirements-vessl.txt
+streamlit run local_chat/app.py \
+  --server.address 0.0.0.0 \
+  --server.port 8501
+```
+
+워크스페이스를 만들 때 포트 `8501`을 함께 노출해야 합니다.
+
 ## Notes
 
 - 모델을 변경하면 대화 기록이 초기화됩니다.
