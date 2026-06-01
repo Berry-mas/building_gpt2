@@ -44,6 +44,11 @@ jupyter lab
 python gpt_download.py
 ```
 
+로컬 모델 UI
+
+- `ch05`, `ch06`, `ch07`에서 저장한 체크포인트를 브라우저에서 바꿔 가며
+  실행하려면 [local_chat/README.md](local_chat/README.md)를 참고하세요.
+
 참고
 
 - 저장소에 이미 `gpt2/124M` 및 `gpt2/355M` 폴더가 있으므로 별도 다운로드가 필요하지 않을 수 있습니다.
