@@ -12,6 +12,35 @@
 - 모델 체크포인트: `model.pth`, `model_and_optimizer.pth`, `review_classifier.pth`
 - 포함된 GPT-2 체크포인트: `gpt2/124M`, `gpt2/355M`
 
+챕터별 구성
+
+`ch02`부터 `ch07`까지는 디렉터리가 아니라 순서대로 실행하는 Jupyter Notebook입니다.
+
+```text
+building_gpt2/
+├── ch02.ipynb                  # 텍스트 전처리와 임베딩
+├── ch03.ipynb                  # attention 메커니즘 구현
+├── ch04.ipynb                  # GPT 모델 구조 구현
+├── ch05.ipynb                  # 사전 훈련과 GPT-2 가중치 로드
+├── ch06.ipynb                  # 스팸 분류 fine-tuning
+├── ch07.ipynb                  # instruction fine-tuning
+├── the-verdict.txt             # 사전 훈련 실습용 텍스트
+├── train.csv                   # 스팸 분류 훈련 데이터
+├── validation.csv              # 스팸 분류 검증 데이터
+├── test.csv                    # 스팸 분류 테스트 데이터
+├── instruction-data.json       # instruction fine-tuning 데이터
+└── local_chat/                 # 체크포인트를 실행하는 Streamlit UI
+```
+
+| 파일 | 주요 내용 |
+| --- | --- |
+| `ch02.ipynb` | 정규표현식 기반 토큰화부터 BPE 토크나이저, sliding window 데이터 로더, 토큰 및 위치 임베딩까지 LLM 입력 처리 과정을 다룹니다. |
+| `ch03.ipynb` | self-attention을 단계별로 계산하고, 학습 가능한 QKV 가중치, causal mask, dropout, multi-head attention으로 확장합니다. |
+| `ch04.ipynb` | LayerNorm, GELU, feed-forward network, residual connection, transformer block을 조합하여 GPT 모델과 기본 텍스트 생성 함수를 구현합니다. |
+| `ch05.ipynb` | 다음 토큰 예측 손실을 계산하고 GPT를 사전 훈련합니다. temperature 및 top-k 샘플링, 모델 저장과 로드, OpenAI GPT-2 가중치 적용도 다룹니다. |
+| `ch06.ipynb` | GPT-2에 분류 헤드를 추가하고 SMS 스팸 데이터로 fine-tuning합니다. 데이터 균형 조정, 정확도 평가, 분류기 저장과 추론 과정을 포함합니다. |
+| `ch07.ipynb` | Alpaca 스타일 지시 데이터와 커스텀 collate 함수를 준비하고 GPT-2 Medium을 instruction fine-tuning합니다. 응답 저장과 Ollama 기반 자동 평가도 다룹니다. |
+
 요구사항 (예시)
 
 - Python 3.8+
