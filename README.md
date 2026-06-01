@@ -54,8 +54,6 @@ python gpt_download.py
 - 저장소에 이미 `gpt2/124M` 및 `gpt2/355M` 폴더가 있으므로 별도 다운로드가 필요하지 않을 수 있습니다.
 - 노트북은 GPU 사용을 가정할 수 있으니, GPU 환경이 없으면 설정을 CPU 모드로 조정하세요.
 
-원하시면 `requirements.txt`를 생성하거나 README 내용을 더 상세히 다듬어 드리겠습니다.
-
 Third-party code and license
 
 - The file `gpt_download.py` (originally by Sebastian Raschka) has been removed
