@@ -32,14 +32,50 @@ building_gpt2/
 └── local_chat/                 # 체크포인트를 실행하는 Streamlit UI
 ```
 
-| 파일 | 주요 내용 |
-| --- | --- |
-| `ch02.ipynb` | 정규표현식 기반 토큰화부터 BPE 토크나이저, sliding window 데이터 로더, 토큰 및 위치 임베딩까지 LLM 입력 처리 과정을 다룹니다. |
-| `ch03.ipynb` | self-attention을 단계별로 계산하고, 학습 가능한 QKV 가중치, causal mask, dropout, multi-head attention으로 확장합니다. |
-| `ch04.ipynb` | LayerNorm, GELU, feed-forward network, residual connection, transformer block을 조합하여 GPT 모델과 기본 텍스트 생성 함수를 구현합니다. |
-| `ch05.ipynb` | 다음 토큰 예측 손실을 계산하고 GPT를 사전 훈련합니다. temperature 및 top-k 샘플링, 모델 저장과 로드, OpenAI GPT-2 가중치 적용도 다룹니다. |
-| `ch06.ipynb` | GPT-2에 분류 헤드를 추가하고 SMS 스팸 데이터로 fine-tuning합니다. 데이터 균형 조정, 정확도 평가, 분류기 저장과 추론 과정을 포함합니다. |
-| `ch07.ipynb` | Alpaca 스타일 지시 데이터와 커스텀 collate 함수를 준비하고 GPT-2 Medium을 instruction fine-tuning합니다. 응답 저장과 Ollama 기반 자동 평가도 다룹니다. |
+### `ch02.ipynb`: 텍스트 데이터 전처리
+
+- **사용 데이터:** 단편 소설 *The Verdict*의 본문인 `the-verdict.txt`
+- **학습 내용:** 모델 가중치를 훈련하지는 않습니다. 이후 챕터에서 다음 토큰 예측 학습에 사용할 입력과 타깃 데이터를 만드는 과정을 준비합니다.
+- **구현 내용:** 정규표현식 기반 토큰 분리, 단어 사전 구축, 문자열과 토큰 ID 사이를 변환하는 `SimpleTokenizerV1` 및 `SimpleTokenizerV2`, `<|unk|>`와 `<|endoftext|>` 특수 토큰 처리를 구현합니다.
+- **추가 실습:** GPT-2의 BPE 토크나이저인 `tiktoken`을 적용하고, sliding window 방식으로 입력 시퀀스와 한 토큰 뒤의 타깃 시퀀스를 만드는 `GPTDatasetV1` 및 `create_dataloader_v1`을 구현합니다. 마지막으로 토큰 임베딩과 위치 임베딩을 더해 모델 입력 텐서를 만듭니다.
+
+### `ch03.ipynb`: Attention 메커니즘 구현
+
+- **사용 데이터:** 별도의 외부 데이터셋 없이 작은 예제 임베딩 텐서를 사용합니다.
+- **학습 내용:** 전체 모델 훈련은 진행하지 않습니다. GPT의 핵심 연산인 attention이 각 토큰의 문맥 벡터를 만드는 과정을 단계별로 확인합니다.
+- **구현 내용:** 단순 dot product 기반 self-attention부터 시작하여 학습 가능한 Query, Key, Value 가중치를 가진 `SelfAttention_v1`과 `SelfAttention_v2`를 구현합니다.
+- **추가 실습:** 미래 토큰을 참조하지 못하게 하는 causal mask와 dropout을 적용한 `CausalAttention`, 여러 attention head를 결합한 `MultiHeadAttentionWrapper`, QKV 행렬을 효율적으로 분할하는 `MultiHeadAttention`을 구현합니다.
+
+### `ch04.ipynb`: GPT 모델 구조 구현
+
+- **사용 데이터:** 구조 검증을 위한 임의 입력 텐서와 짧은 시작 문장을 사용합니다.
+- **학습 내용:** 아직 데이터셋으로 모델을 훈련하지 않습니다. `GPT_CONFIG_124M` 설정을 기준으로 GPT-2 Small과 같은 형태의 모델을 직접 조립하고 출력 shape과 생성 흐름을 검증합니다.
+- **구현 내용:** `LayerNorm`, `GELU`, `FeedForward`, residual connection, `MultiHeadAttention`, `TransformerBlock`을 구현합니다. 이를 토큰 임베딩, 위치 임베딩, transformer block, 최종 정규화 층, 출력 층으로 연결하여 `GPTModel`을 완성합니다.
+- **추가 실습:** 현재 문맥에서 마지막 토큰의 logits를 선택하고 다음 토큰을 반복해서 붙이는 greedy decoding 함수 `generate_text_simple`을 구현합니다.
+
+### `ch05.ipynb`: 다음 토큰 예측 사전 훈련
+
+- **사용 데이터:** `the-verdict.txt`를 앞부분 90%의 훈련 세트와 뒷부분 10%의 검증 세트로 분리합니다.
+- **학습 내용:** `ch04`에서 만든 GPT 모델을 레이블 없는 텍스트로 자기지도학습합니다. 입력 시퀀스보다 한 토큰 뒤로 이동한 타깃 시퀀스를 사용하여, 각 위치에서 다음 토큰을 예측하도록 cross-entropy loss를 최소화합니다.
+- **구현 내용:** 배치 및 데이터 로더 단위 손실 계산, 훈련 및 검증 평가, 샘플 텍스트 생성, AdamW 기반 훈련 루프 `train_model_simple`, loss 그래프 출력을 구현합니다.
+- **추가 실습:** greedy decoding 외에 temperature scaling과 top-k sampling을 적용한 `generate` 함수를 구현합니다. 직접 학습한 모델과 optimizer를 체크포인트로 저장하고 다시 불러오는 방법도 다룹니다.
+- **사전 훈련 가중치 활용:** 직접 학습과 별도로 OpenAI GPT-2 Small(124M)의 기존 가중치를 내려받아 직접 구현한 `GPTModel`에 매핑합니다.
+
+### `ch06.ipynb`: 스팸 분류 Fine-tuning
+
+- **사용 데이터:** UCI SMS Spam Collection의 문자 메시지 데이터입니다. `ham` 샘플을 undersampling하여 `spam`과 개수를 맞춘 뒤 `train.csv`, `validation.csv`, `test.csv`로 저장합니다. 실제 코드의 분할 비율은 훈련 70%, 검증 10%, 테스트 20%입니다.
+- **학습 내용:** OpenAI GPT-2 Small(124M)의 사전 훈련 가중치를 불러온 뒤 문자 메시지가 정상 메시지인지 스팸인지 분류하도록 fine-tuning합니다.
+- **구현 내용:** 메시지를 GPT-2 BPE로 토큰화하고 `<|endoftext|>` 토큰으로 길이를 맞추는 `SpamDataset`을 구현합니다. 기존 언어 모델 출력 층을 두 개 클래스의 logits를 출력하는 분류 헤드로 교체합니다.
+- **Fine-tuning 범위:** 대부분의 모델 파라미터를 동결하고 새 분류 헤드, 마지막 transformer block, 최종 LayerNorm을 학습합니다. causal attention에서 마지막 토큰이 이전 문맥 전체를 참고할 수 있으므로 마지막 토큰의 logits로 분류합니다.
+- **평가 및 결과물:** cross-entropy loss와 정확도를 계산하고, 새로운 메시지를 분류하는 `classify_review`를 구현합니다. 학습된 분류기는 `review_classifier.pth`로 저장합니다.
+
+### `ch07.ipynb`: Instruction Fine-tuning
+
+- **사용 데이터:** `instruction`, 선택적 `input`, `output` 필드를 가진 공개 지시-응답 데이터 `instruction-data.json`입니다. 실제 코드의 분할 비율은 훈련 85%, 테스트 10%, 검증 5%입니다.
+- **학습 내용:** OpenAI GPT-2 Medium(355M)의 사전 훈련 가중치를 불러온 뒤, 사용자의 지시에 적절한 응답을 생성하도록 supervised instruction fine-tuning을 진행합니다.
+- **구현 내용:** 각 샘플을 Alpaca 스타일의 `### Instruction`, `### Input`, `### Response` 형식으로 변환합니다. 배치마다 길이가 다른 샘플을 패딩하고, 손실 계산에서 불필요한 패딩 토큰을 `-100`으로 마스킹하는 `InstructionDataset`과 `custom_collate_fn`을 구현합니다.
+- **Fine-tuning 방식:** 사전 훈련과 마찬가지로 다음 토큰 예측 cross-entropy loss를 사용하지만, 이번에는 지시문과 기대 응답을 연결한 텍스트를 학습합니다.
+- **평가 및 결과물:** 테스트 세트에 대한 모델 응답을 생성하여 `instruction-data-with-response.json`으로 내보내고, fine-tuning된 모델을 `gpt2-medium355M-sft.pth`로 저장합니다. 선택적으로 Ollama의 Llama 3 모델을 호출하여 생성 응답을 자동 채점합니다.
 
 요구사항 (예시)
 
